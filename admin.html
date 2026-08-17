@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Admin Panel</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1a1a1a; color: #fff; margin: 0; padding: 40px; }
+        .container { max-width: 500px; margin: 0 auto; background: #2a2a2a; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        h2 { text-align: center; color: #00ffcc; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #ccc; }
+        input { width: 100%; padding: 10px; box-sizing: border-box; background: #333; border: 1px solid #555; color: #fff; border-radius: 5px; }
+        button { background-color: #00ffcc; color: #000; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; }
+        button:hover { background-color: #00b386; }
+        .hidden { display: none; }
+        .log-box { background: #333; padding: 15px; border-radius: 5px; margin-top: 15px; font-size: 14px; border-left: 4px solid #00ffcc; }
+        .error { color: #ff4d4d; text-align: center; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- หน้าล็อกอินแอดมิน -->
+    <div id="login-section">
+        <h2>🔒 Admin Portal</h2>
+        <div class="form-group">
+            <label>รหัสผ่านแอดมิน</label>
+            <input type="password" id="admin-pass" placeholder="กรอกรหัสผ่าน">
+        </div>
+        <button onclick="adminLogin()">เข้าสู่ระบบ</button>
+        <div id="login-error" class="error"></div>
+    </div>
+
+    <!-- แดชบอร์ดหลังบ้าน (ซ่อนไว้) -->
+    <div id="admin-dashboard" class="hidden">
+        <h2>🛠️ ระบบจัดการหลังบ้าน</h2>
+        <div class="log-box" id="last-login-log">
+            กำลังตรวจสอบข้อมูลการเข้าสู่ระบบ...
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #444; margin: 20px 0;">
+
+        <h3>เปลี่ยนรหัสผ่านแอดมิน</h3>
+        <div class="form-group">
+            <label>รหัสผ่านใหม่</label>
+            <input type="password" id="new-admin-pass" placeholder="กรอกรหัสผ่านใหม่">
+        </div>
+        <button onclick="changePassword()" style="background-color: #007bff; color: white;">บันทึกรหัสผ่านใหม่</button>
+        <div id="update-status" style="margin-top: 10px; text-align: center; font-weight: bold;"></div>
+    </div>
+</div>
+
+<script>
+    const BACKEND_URL = "https://freedom-backend-z4az.onrender.com";
+
+    async function adminLogin() {
+        const pass = document.getElementById('admin-pass').value;
+        const errorDiv = document.getElementById('login-error');
+
+        try {
+            let response = await fetch(`${BACKEND_URL}/api/admin/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: pass })
+            });
+            
+            let data = await response.json();
+            if (response.ok) {
+                document.getElementById('login-section').classList.add('hidden');
+                document.getElementById('admin-dashboard').classList.remove('hidden');
+                
+                if (data.lastLogin) {
+                    let thaiDate = new Date(data.lastLogin).toLocaleString('th-TH');
+                    document.getElementById('last-login-log').innerText = `🕒 เข้าสู่ระบบล่าสุดเมื่อ: ${thaiDate}`;
+                } else {
+                    document.getElementById('last-login-log').innerText = `🕒 นี่เป็นการเข้าสู่ระบบครั้งแรกของคุณ`;
+                }
+            } else {
+                errorDiv.innerText = data.error || 'รหัสผ่านไม่ถูกต้อง!';
+            }
+        } catch (err) {
+            errorDiv.innerText = 'ไม่สามารถเชื่อมต่อกับ Server ได้ (Timeout/Network Error)';
+            console.error(err);
+        }
+    }
+
+    async function changePassword() {
+        const newPass = document.getElementById('new-admin-pass').value;
+        const statusDiv = document.getElementById('update-status');
+
+        if (!newPass) {
+            statusDiv.style.color = '#ff4d4d';
+            statusDiv.innerText = 'กรุณากรอกรหัสผ่านใหม่';
+            return;
+        }
+
+        try {
+            let response = await fetch(`${BACKEND_URL}/api/admin/change-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ newPassword: newPass })
+            });
+
+            let data = await response.json();
+            if (response.ok) {
+                statusDiv.style.color = '#00ffcc';
+                statusDiv.innerText = 'เปลี่ยนรหัสผ่านสำเร็จ!';
+                document.getElementById('new-admin-pass').value = '';
+            } else {
+                statusDiv.style.color = '#ff4d4d';
+                statusDiv.innerText = data.error || 'เกิดข้อผิดพลาด';
+            }
+        } catch (err) {
+            statusDiv.style.color = '#ff4d4d';
+            statusDiv.innerText = 'ไม่สามารถเชื่อมต่อ Server ได้';
+        }
+    }
+</script>
+
+</body>
+</html>
