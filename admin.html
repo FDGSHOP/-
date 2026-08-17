@@ -21,7 +21,6 @@
 <body>
 
 <div class="container">
-    <!-- หน้าล็อกอินแอดมิน -->
     <div id="login-section">
         <h2>🔒 Admin Portal</h2>
         <div class="form-group">
@@ -32,12 +31,9 @@
         <div id="login-error" class="error"></div>
     </div>
 
-    <!-- แดชบอร์ดหลังบ้าน (ซ่อนไว้) -->
     <div id="admin-dashboard" class="hidden">
         <h2>🛠️ ระบบจัดการหลังบ้าน</h2>
-        <div class="log-box" id="last-login-log">
-            กำลังตรวจสอบข้อมูลการเข้าสู่ระบบ...
-        </div>
+        <div class="log-box" id="last-login-log">กำลังตรวจสอบข้อมูลการเข้าสู่ระบบ...</div>
 
         <hr style="border: 0; border-top: 1px solid #444; margin: 20px 0;">
 
@@ -80,8 +76,7 @@
                 errorDiv.innerText = data.error || 'รหัสผ่านไม่ถูกต้อง!';
             }
         } catch (err) {
-            errorDiv.innerText = 'ไม่สามารถเชื่อมต่อกับ Server ได้ (Timeout/Network Error)';
-            console.error(err);
+            errorDiv.innerText = 'ไม่สามารถเชื่อมต่อกับ Server ได้';
         }
     }
 
@@ -117,6 +112,5 @@
         }
     }
 </script>
-
 </body>
 </html>
