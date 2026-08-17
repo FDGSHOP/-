@@ -827,7 +827,7 @@
         </div>
     </div>
 
-    <!-- JavaScript -->
+    <!-- JavaScript (ระบบหลังบ้านเดิมทั้งหมดถูกคืนค่ากลับมาครบถ้วน) -->
     <script>
         const gameData = [
             { 
@@ -1024,7 +1024,44 @@
 
         function renderAdminGameList() {
             const container = document.getElementById('admin-game-list');
-            // คงฟังก์ชันเดิมส่วนการ render แอดมิน
+            container.innerHTML = "";
+            gameData.forEach((game, gIndex) => {
+                const card = document.createElement('div');
+                card.className = 'admin-game-card';
+                card.innerHTML = `
+                    <h4>🎮 ${game.title} ${game.sub}</h4>
+                    <div class="admin-row">
+                        <label>สถานะ:</label>
+                        <select onchange="updateGameStatus(${gIndex}, this.value)">
+                            <option value="safe" ${game.status === 'safe' ? 'selected' : ''}>Undetected (ปลอดภัย)</option>
+                            <option value="updating" ${game.status === 'updating' ? 'selected' : ''}>Updating (กำลังอัปเดต)</option>
+                            <option value="down" ${game.status === 'down' ? 'selected' : ''}>Maintenance (ปิดปรับปรุง)</option>
+                        </select>
+                    </div>
+                    <div class="admin-row">
+                        <label>คลังคีย์ (1 บรรทัด = 1 คีย์):</label>
+                    </div>
+                    <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:5px; font-size:11px;">
+                        <div>1D: <input type="text" value="${gameKeyStock[gIndex][1].join(', ')}" onchange="updateStock(${gIndex}, 1, this.value)" style="width:100%"></div>
+                        <div>3D: <input type="text" value="${gameKeyStock[gIndex][3].join(', ')}" onchange="updateStock(${gIndex}, 3, this.value)" style="width:100%"></div>
+                        <div>7D: <input type="text" value="${gameKeyStock[gIndex][7].join(', ')}" onchange="updateStock(${gIndex}, 7, this.value)" style="width:100%"></div>
+                        <div>15D: <input type="text" value="${gameKeyStock[gIndex][15].join(', ')}" onchange="updateStock(${gIndex}, 15, this.value)" style="width:100%"></div>
+                        <div>30D: <input type="text" value="${gameKeyStock[gIndex][30].join(', ')}" onchange="updateStock(${gIndex}, 30, this.value)" style="width:100%"></div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function updateGameStatus(gIndex, statusVal) {
+            gameData[gIndex].status = statusVal;
+            if(statusVal === 'safe') gameData[gIndex].statusText = "Undetected (ปลอดภัย 100%)";
+            if(statusVal === 'updating') gameData[gIndex].statusText = "Updating (กำลังอัปเดตแพตช์)";
+            if(statusVal === 'down') gameData[gIndex].statusText = "Maintenance (ปิดปรับปรุงชั่วคราว)";
+        }
+
+        function updateStock(gIndex, days, val) {
+            gameKeyStock[gIndex][days] = val ? val.split(',').map(s => s.trim()).filter(s => s) : [];
         }
 
         function openPaymentModal() {
@@ -1076,7 +1113,6 @@
                 setTimeout(() => {
                     alert("✅ ตรวจสอบสลิปและชำระเงินสำเร็จ! ระบบได้ออกคีย์ให้คุณเรียบร้อยแล้ว");
                     
-                    // เพิ่มจำลองคีย์ลงประวัติ
                     const stockList = gameKeyStock[currentIndex][selectedDays];
                     let assignedKey = stockList.length > 0 ? stockList.shift() : "KEY-AUTO-" + Math.random().toString(36).substring(2, 10).toUpperCase();
                     
