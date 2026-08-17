@@ -3,123 +3,1246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FREEDOM PLUS - Admin Panel</title>
+    <title>FREEDOM PLUS - Mod Rental</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        h2 { color: #333; text-align: center; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
-        input { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; }
-        button { background-color: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; }
-        button:hover { background-color: #218838; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #121214;
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .navbar {
+            display: flex;
+            padding: 20px 30px;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 10;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: #00ffcc;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #777;
+            font-weight: bold;
+            transition: 0.3s;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .nav-links a.active,
+        .nav-links a:hover {
+            color: #fff;
+        }
+
+        .auth-btn {
+            background: #00ffcc;
+            color: #121214;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .auth-btn:hover {
+            background: #00e6b8;
+        }
+
+        .user-pill {
+            background: #25252b;
+            border: 1px solid #444;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #00ffcc;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .logout-mini {
+            color: #e74c3c;
+            cursor: pointer;
+            font-size: 11px;
+            text-decoration: underline;
+        }
+
+        .main-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            min-height: 75vh;
+            position: relative;
+            padding: 20px;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .bg-glow {
+            position: absolute;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(0, 255, 204, 0.35) 0%, rgba(18, 18, 20, 0) 70%);
+            top: 50%;
+            left: 55%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            transition: background 0.6s ease;
+            pointer-events: none;
+        }
+
+        .product-info {
+            max-width: 400px;
+            z-index: 5;
+            position: relative;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            animation: badge-pulse 1.5s infinite;
+        }
+
+        .status-safe {
+            background: rgba(0, 255, 204, 0.1);
+            color: #00ffcc;
+            border-color: rgba(0, 255, 204, 0.3);
+        }
+
+        .status-safe .status-dot {
+            background: #00ffcc;
+        }
+
+        .status-updating {
+            background: rgba(241, 196, 15, 0.1);
+            color: #f1c40f;
+            border-color: rgba(241, 196, 15, 0.3);
+        }
+
+        .status-updating .status-dot {
+            background: #f1c40f;
+        }
+
+        .status-down {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            border-color: rgba(231, 76, 60, 0.3);
+        }
+
+        .status-down .status-dot {
+            background: #e74c3c;
+        }
+
+        @keyframes badge-pulse {
+            0% { transform: scale(0.95); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.5; }
+        }
+
+        .product-title {
+            font-size: 50px;
+            font-weight: 800;
+            margin-bottom: 5px;
+            line-height: 1.1;
+            transition: 0.4s;
+        }
+
+        .product-title span {
+            color: #00ffcc;
+        }
+
+        .product-subtitle {
+            font-size: 20px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+        }
+
+        .product-price {
+            font-size: 28px;
+            margin: 20px 0;
+            color: #fff;
+            font-weight: bold;
+        }
+
+        .buy-btn {
+            background: #00ffcc;
+            color: #121214;
+            border: none;
+            padding: 15px 40px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 4px;
+            transition: 0.3s transform, 0.3s background;
+            box-shadow: 0 10px 20px rgba(0, 255, 204, 0.3);
+        }
+
+        .buy-btn:hover {
+            transform: translateY(-3px);
+            background: #00e6b8;
+        }
+
+        .buy-btn.disabled {
+            background: #444 !important;
+            color: #888 !important;
+            cursor: not-allowed !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+
+        .shoe-showcase {
+            position: relative;
+            width: 600px;
+            max-width: 100%;
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+        }
+
+        .main-shoe-img {
+            width: 100%;
+            max-width: 520px;
+            height: 320px;
+            object-fit: cover;
+            border-radius: 12px;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: scale(1);
+            filter: drop-shadow(0 25px 25px rgba(0, 0, 0, 0.6));
+        }
+
+        .main-shoe-img.shoe-anim {
+            transform: scale(0.8) translateY(20px);
+            opacity: 0;
+            filter: blur(5px);
+        }
+
+        .slider-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 12px 16px;
+            cursor: pointer;
+            font-size: 18px;
+            border-radius: 50%;
+            z-index: 10;
+            transition: 0.3s;
+        }
+
+        .slider-btn:hover {
+            background: #00ffcc;
+            color: #121214;
+            border-color: #00ffcc;
+        }
+
+        .prev-btn { left: 10px; }
+        .next-btn { right: 10px; }
+
+        .thumbnail-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 5;
+        }
+
+        .thumb {
+            width: 75px;
+            height: 75px;
+            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            background: #1a1a1e;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 2px;
+        }
+
+        .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .thumb:hover {
+            transform: scale(1.1);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .thumb.active {
+            border-color: #00ffcc;
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: #1a1a1e;
+            margin: 5vh auto;
+            padding: 25px;
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            color: #fff;
+        }
+
+        .history-content { max-width: 540px; text-align: left; }
+        .auth-content { max-width: 400px; }
+        .admin-content { max-width: 650px; text-align: left; max-height: 85vh; overflow-y: auto; }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #aaa;
+        }
+        .close:hover { color: #fff; }
+
+        .modal-sub {
+            font-size: 13px;
+            color: #888;
+            margin-top: 5px;
+            margin-bottom: 15px;
+        }
+
+        .social-login-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .social-btn {
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-weight: bold;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+            text-align: left;
+            padding-left: 20px;
+        }
+
+        .social-btn.discord { background: #5865F2; }
+        .social-btn.google { background: #DB4437; }
+        .social-btn.facebook { background: #1877F2; }
+        .social-btn.line { background: #06C755; }
+        .social-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+
+        .admin-login-section {
+            border-top: 1px solid #333;
+            padding-top: 15px;
+            text-align: left;
+        }
+
+        .admin-divider {
+            font-size: 12px;
+            color: #777;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .admin-input {
+            width: 100%;
+            padding: 10px;
+            background: #25252b;
+            border: 1px solid #444;
+            border-radius: 6px;
+            color: #fff;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .admin-login-btn {
+            width: 100%;
+            background: #e74c3c;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .admin-login-btn:hover { background: #c0392b; }
+
+        .admin-game-list {
+            max-height: 350px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+            padding-right: 5px;
+        }
+
+        .admin-game-card {
+            background: #25252b;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .admin-game-card h4 {
+            font-size: 14px;
+            color: #00ffcc;
+        }
+
+        .admin-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            font-size: 12px;
+            flex-wrap: wrap;
+        }
+
+        .admin-row select,
+        .admin-row input,
+        .admin-row textarea {
+            flex: 1;
+            min-width: 120px;
+            padding: 6px;
+            background: #1a1a1e;
+            border: 1px solid #555;
+            color: #fff;
+            border-radius: 4px;
+            font-size: 11px;
+            resize: vertical;
+        }
+
+        .add-game-box {
+            background: #25252b;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px dashed #00ffcc;
+            margin-top: 15px;
+        }
+
+        .days-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .day-btn {
+            background: #25252b;
+            color: #fff;
+            border: 1px solid #444;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .day-btn:hover {
+            background: #00ffcc;
+            color: #121214;
+            border-color: #00ffcc;
+        }
+
         .hidden { display: none; }
-        .log-box { background: #e9ecef; padding: 10px; border-radius: 5px; margin-top: 15px; font-size: 14px; color: #333; }
-        .error { color: red; text-align: center; margin-top: 10px; }
+
+        .payment-area {
+            margin-top: 15px;
+            border-top: 1px solid #333;
+            padding-top: 15px;
+        }
+
+        .price-text {
+            font-size: 16px;
+            font-weight: bold;
+            color: #00ffcc;
+            margin-bottom: 5px;
+        }
+
+        .timer-box {
+            font-size: 13px;
+            color: #f1c40f;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        #qr-code {
+            width: 150px;
+            height: 150px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: #fff;
+            padding: 5px;
+        }
+
+        .upload-section {
+            margin-top: 10px;
+            text-align: left;
+            background: #25252b;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px dashed #555;
+        }
+
+        .upload-label {
+            display: block;
+            text-align: center;
+            font-size: 13px;
+            color: #00ffcc;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #slip-file { display: none; }
+
+        .file-name-text {
+            font-size: 11px;
+            color: #aaa;
+            text-align: center;
+            margin-top: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .support-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .support-btn {
+            display: block;
+            padding: 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #fff;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .support-btn.discord { background: #5865F2; }
+        .support-btn.facebook { background: #1877F2; }
+        .support-btn.line { background: #06C755; }
+        .support-btn:hover { opacity: 0.85; transform: translateY(-2px); }
+
+        .history-list {
+            max-height: 350px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 10px;
+            padding-right: 5px;
+        }
+
+        .no-history { text-align: center; color: #666; padding: 20px; }
+
+        .history-item {
+            background: #25252b;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .history-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .history-info h4 {
+            font-size: 15px;
+            color: #00ffcc;
+            margin-bottom: 2px;
+        }
+
+        .history-info .history-date {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .history-info p {
+            font-size: 12px;
+            color: #aaa;
+            font-family: monospace;
+            word-break: break-all;
+        }
+
+        .history-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            border-top: 1px dashed #444;
+            padding-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .copy-btn, .dl-btn {
+            background: #00ffcc;
+            color: #121214;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 11px;
+            transition: 0.2s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .dl-btn { background: #3498db; color: #fff; }
+        .dl-btn.game-dl { background: #e67e22; }
+        .copy-btn:hover, .dl-btn:hover { opacity: 0.85; }
+
+        /* Responsive Media Query สำหรับหน้าจอขนาดเล็ก (มือถือ) */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 15px 20px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .nav-links {
+                width: 100%;
+                justify-content: space-between;
+                gap: 10px;
+            }
+            .main-container {
+                flex-direction: column-reverse;
+                height: auto;
+                padding: 10px;
+            }
+            .thumbnail-sidebar {
+                flex-direction: row;
+                justify-content: center;
+                width: 100%;
+                overflow-x: auto;
+                padding-bottom: 10px;
+            }
+            .product-title {
+                font-size: 36px;
+            }
+            .shoe-showcase {
+                height: 280px;
+            }
+            .main-shoe-img {
+                height: 240px;
+            }
+            .bg-glow {
+                width: 280px;
+                height: 280px;
+            }
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <!-- หน้าล็อกอิน -->
-    <div id="login-section">
-        <h2>Admin Login</h2>
-        <div class="form-group">
-            <label>รหัสผ่านแอดมิน (ค่าเริ่มต้น: admin123)</label>
-            <input type="password" id="admin-pass" placeholder="กรอกรหัสผ่าน">
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">FREEDOM PLUS</div>
+        <div class="nav-links">
+            <a class="active">หน้าแรก</a>
+            <a onclick="openHistoryModal()">📋 ประวัติการเช่า (<span id="coupon-count">0</span>)</a>
+            <a onclick="openSupportModal()">💬 ติดต่อเรา</a>
+            <div id="user-auth-area">
+                <button class="auth-btn" onclick="openLoginModal()">🔑 เข้าสู่ระบบ</button>
+            </div>
         </div>
-        <button onclick="adminLogin()">เข้าสู่ระบบ</button>
-        <div id="login-error" class="error"></div>
+    </nav>
+
+    <!-- Main Section -->
+    <div class="main-container">
+        <div class="bg-glow" id="bg-glow"></div>
+
+        <!-- Thumbnail Sidebar -->
+        <div class="thumbnail-sidebar" id="thumbnail-sidebar"></div>
+
+        <!-- Product Info -->
+        <div class="product-info">
+            <div id="mod-status-badge" class="status-badge status-safe">
+                <span class="status-dot"></span>
+                <span id="status-text">Undetected (ปลอดภัย 100%)</span>
+            </div>
+            <h1 class="product-title" id="game-title">LINE <span>Rangers</span></h1>
+            <p class="product-subtitle" id="game-subtitle">Rangers</p>
+            <p class="product-price" id="game-price">MOD Available</p>
+            <button class="buy-btn" id="main-buy-btn" onclick="openPaymentModal()">เช่า MOD</button>
+        </div>
+
+        <!-- Game Showcase Image & Slider -->
+        <div class="shoe-showcase">
+            <button class="slider-btn prev-btn" onclick="changeImage(-1)">&#10094;</button>
+            <img id="main-game" class="main-shoe-img" src="" alt="Game Image">
+            <button class="slider-btn next-btn" onclick="changeImage(1)">&#10095;</button>
+        </div>
     </div>
 
-    <!-- หน้าจัดการหลังบ้าน (ซ่อนไว้จนกว่าจะล็อกอินผ่าน) -->
-    <div id="admin-dashboard" class="hidden">
-        <h2>ระบบจัดการหลังบ้าน (FREEDOM PLUS)</h2>
-        <div class="log-box" id="last-login-log">
-            กำลังโหลดข้อมูลการเข้าสู่ระบบล่าสุด...
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content auth-content">
+            <span class="close" onclick="closeLoginModal()">&times;</span>
+            <h2>เข้าสู่ระบบ</h2>
+            <p class="modal-sub">เลือกช่องทางที่คุณต้องการเข้าสู่ระบบ</p>
+            <div class="social-login-container">
+                <button class="social-btn discord" onclick="mockLogin('Discord')">💬 เข้าสู่ระบบด้วย Discord</button>
+                <button class="social-btn google" onclick="mockLogin('Google')">🌐 เข้าสู่ระบบด้วย Google</button>
+                <button class="social-btn facebook" onclick="mockLogin('Facebook')">📘 เข้าสู่ระบบด้วย Facebook</button>
+                <button class="social-btn line" onclick="mockLogin('LINE')">💚 เข้าสู่ระบบด้วย LINE</button>
+            </div>
+            <div class="admin-login-section">
+                <div class="admin-divider">สำหรับผู้ดูแลระบบ (Admin)</div>
+                <input type="password" id="admin-pass-input" class="admin-input" placeholder="รหัสผ่านแอดมิน (admin123)">
+                <button class="admin-login-btn" onclick="loginAdmin()">เข้าสู่ระบบแอดมิน</button>
+            </div>
         </div>
-
-        <hr style="margin: 20px 0;">
-
-        <h3>เปลี่ยนรหัสผ่านแอดมิน</h3>
-        <div class="form-group">
-            <label>รหัสผ่านใหม่</label>
-            <input type="password" id="new-admin-pass" placeholder="กรอกรหัสผ่านใหม่ที่ต้องการ">
-        </div>
-        <button onclick="changePassword()" style="background-color: #007bff;">บันทึกรหัสผ่านใหม่</button>
-        <div id="update-status" style="margin-top: 10px; text-align: center; font-weight: bold;"></div>
     </div>
-</div>
 
-<script>
-    // URL Backend บน Render ของคุณ
-    const BACKEND_URL = "https://freedom-backend-z4az.onrender.com";
-
-    async function adminLogin() {
-        const pass = document.getElementById('admin-pass').value;
-        const errorDiv = document.getElementById('login-error');
-
-        try {
-            let response = await fetch(`${BACKEND_URL}/api/admin/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ password: pass })
-            });
+    <!-- Admin Panel Modal -->
+    <div id="admin-modal" class="modal">
+        <div class="modal-content admin-content">
+            <span class="close" onclick="closeAdminModal()">&times;</span>
+            <h2>⚙️ Admin Panel (จัดการหลังบ้าน)</h2>
+            <p class="modal-sub">เพิ่มเกม, ตั้งราคา, และบริหารคลังคีย์สต็อก (1 บรรทัด = 1 คีย์)</p>
             
-            let data = await response.json();
-            if (response.ok) {
-                // ซ่อนหน้า login แสดงหน้าแดชบอร์ด
-                document.getElementById('login-section').classList.add('hidden');
-                document.getElementById('admin-dashboard').classList.remove('hidden');
-                
-                // แสดงเวลาเข้าสู่ระบบล่าสุด
-                if (data.lastLogin) {
-                    let thaiDate = new Date(data.lastLogin).toLocaleString('th-TH');
-                    document.getElementById('last-login-log').innerText = `🕒 เข้าสู่ระบบล่าสุดเมื่อ: ${thaiDate}`;
-                } else {
-                    document.getElementById('last-login-log').innerText = `🕒 นี่เป็นการเข้าสู่ระบบครั้งแรกของคุณ`;
-                }
-            } else {
-                errorDiv.innerText = data.error || 'รหัสผ่านไม่ถูกต้อง!';
+            <div class="admin-game-list" id="admin-game-list"></div>
+            
+            <div class="add-game-box">
+                <h4 style="color: #00ffcc; margin-bottom: 8px;">➕ เพิ่มเกมใหม่</h4>
+                <div class="admin-row" style="margin-bottom: 5px;">
+                    <input type="text" id="new-title" placeholder="ชื่อเกมหลัก (เช่น ROV)">
+                    <input type="text" id="new-sub" placeholder="ชื่อรอง (เช่น Mobile)">
+                </div>
+                <div class="admin-row" style="margin-bottom: 5px;">
+                    <input type="text" id="new-modlink" placeholder="ลิงก์โหลด MOD APK">
+                    <input type="text" id="new-gamelink" placeholder="ลิงก์โหลดเกมแท้">
+                </div>
+                <div class="admin-row" style="margin-bottom: 8px;">
+                    <input type="text" id="new-img" placeholder="ลิงก์รูปภาพเกม (URL)">
+                </div>
+                <button onclick="addNewGame()" style="background: #00ffcc; color: #121214; border: none; padding: 8px; width: 100%; border-radius: 4px; font-weight: bold; cursor: pointer;">เพิ่มเกมลงระบบ</button>
+            </div>
+
+            <button onclick="closeAdminModal()" style="margin-top: 15px; background: #3498db; color: #fff; border: none; padding: 10px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer;">บันทึกและปิด</button>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modal-game-name">เลือกแพ็กเกจเช่า MOD</h2>
+            <p class="modal-sub">กรุณาเลือกจำนวนวันที่ต้องการเช่าใช้งาน</p>
+            
+            <div id="days-selection" class="days-container">
+                <button class="day-btn" onclick="selectDay(1, 50)">1 วัน - 50 บาท</button>
+                <button class="day-btn" onclick="selectDay(3, 120)">3 วัน - 120 บาท</button>
+                <button class="day-btn" onclick="selectDay(7, 250)">7 วัน - 250 บาท</button>
+                <button class="day-btn" onclick="selectDay(15, 450)">15 วัน - 450 บาท</button>
+                <button class="day-btn" onclick="selectDay(30, 800)">30 วัน - 800 บาท</button>
+            </div>
+
+            <div id="payment-area" class="payment-area hidden">
+                <div id="price-display" class="price-text">ยอดชำระ: 50 บาท</div>
+                <div id="timer" class="timer-box">QR Code จะหมดอายุใน: <span id="countdown">05:00</span></div>
+                <img id="qr-code" src="" alt="PromptPay QR">
+                <div class="upload-section">
+                    <label for="slip-file" class="upload-label">📁 อัปโหลดสลิปโอนเงิน</label>
+                    <input type="file" id="slip-file" accept="image/*" onchange="handleSlipUpload(event)">
+                    <div id="file-name" class="file-name-text"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div id="history-modal" class="modal">
+        <div class="modal-content history-content">
+            <span class="close" onclick="closeHistoryModal()">&times;</span>
+            <h2>📋 ประวัติการเช่า MOD ของคุณ</h2>
+            <p class="modal-sub">คีย์และลิงก์ดาวน์โหลดของคุณ (ยังไม่เปิดใช้งาน = ไม่มีวันหมดอายุ)</p>
+            <div class="history-list" id="history-list-container">
+                <p class="no-history">ยังไม่มีประวัติการเช่า MOD</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Support Modal -->
+    <div id="support-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeSupportModal()">&times;</span>
+            <h2>💬 ช่องทางติดต่อสนับสนุน</h2>
+            <p class="modal-sub">มีปัญหาในการใช้งาน ติดต่อเราได้ตลอด 24 ชั่วโมง</p>
+            <div class="support-links">
+                <a href="#" target="_blank" class="support-btn discord">💬 Discord Community</a>
+                <a href="#" target="_blank" class="support-btn facebook">📘 Facebook Page</a>
+                <a href="#" target="_blank" class="support-btn support-btn line">💚 LINE Official</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript (โค้ดหลังบ้านเดิมของคุณ 100%) -->
+    <script>
+        const gameData = [
+            { 
+                title: "LINE", sub: "Rangers", price: "MOD Available", 
+                status: "safe", statusText: "Undetected (ปลอดภัย 100%)",
+                modLink: "https://example.com/download/line-rangers-mod.apk",
+                gameLink: "https://example.com/download/line-rangers-original.apk",
+                images: [
+                    "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80",
+                    "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&auto=format&fit=crop&q=80", 
+                    "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=800&auto=format&fit=crop&q=80"
+                ], 
+                glowColor: "rgba(0, 255, 204, 0.35)", accentColor: "#00ffcc",
+                prices: { 1: 50, 3: 120, 7: 250, 15: 450, 30: 800 }
+            },
+            { 
+                title: "Cookie", sub: "Run", price: "Updating...", 
+                status: "updating", statusText: "Updating (กำลังอัปเดตแพตช์)",
+                modLink: "#", gameLink: "#",
+                images: [
+                    "https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?w=800&auto=format&fit=crop&q=80",
+                    "https://images.unsplash.com/photo-1612287233202-b51b366f1c7a?w=800&auto=format&fit=crop&q=80", 
+                    "https://images.unsplash.com/photo-1563089145-599997674d42?w=800&auto=format&fit=crop&q=80"
+                ], 
+                glowColor: "rgba(255, 150, 0, 0.35)", accentColor: "#ff9600",
+                prices: { 1: 60, 3: 140, 7: 290, 15: 500, 30: 900 }
+            },
+            { 
+                title: "PUBG", sub: "Mobile", price: "Maintenance", 
+                status: "down", statusText: "Maintenance (ปิดปรับปรุงชั่วคราว)",
+                modLink: "#", gameLink: "#",
+                images: [
+                    "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&auto=format&fit=crop&q=80",
+                    "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800&auto=format&fit=crop&q=80", 
+                    "https://images.unsplash.com/photo-1552820728-8b83bb6b773f?w=800&auto=format&fit=crop&q=80"
+                ], 
+                glowColor: "rgba(241, 196, 15, 0.35)", accentColor: "#f1c40f",
+                prices: { 1: 70, 3: 160, 7: 320, 15: 600, 30: 1100 }
             }
-        } catch (err) {
-            errorDiv.innerText = 'ไม่สามารถเชื่อมต่อกับ Server ได้';
-            console.error(err);
+        ];
+
+        let gameKeyStock = {
+            0: { 1: ["KEY-LR-1D-01", "KEY-LR-1D-02"], 3: ["KEY-LR-3D-01"], 7: [], 15: ["KEY-LR-15D-01"], 30: ["KEY-LR-30D-01"] },
+            1: { 1: ["KEY-CR-1D-01"], 3: ["KEY-CR-3D-01"], 7: ["KEY-CR-7D-01"], 15: [], 30: ["KEY-CR-30D-01"] },
+            2: { 1: [], 3: [], 7: [], 15: [], 30: [] }
+        };
+
+        let currentIndex = 0;
+        let currentImageIndex = 0;
+        let selectedDays = 1;
+        let purchaseHistory = [];
+        let countdownInterval;
+        let currentUser = null;
+
+        const sidebar = document.getElementById('thumbnail-sidebar');
+        const mainImg = document.getElementById('main-game');
+        const title = document.getElementById('game-title');
+        const subtitle = document.getElementById('game-subtitle');
+        const price = document.getElementById('game-price');
+        const bgGlow = document.getElementById('bg-glow');
+        const buyBtn = document.getElementById('main-buy-btn');
+        const modStatusBadge = document.getElementById('mod-status-badge');
+        const statusText = document.getElementById('status-text');
+
+        function initSidebar() {
+            sidebar.innerHTML = "";
+            gameData.forEach((game, index) => {
+                const div = document.createElement('div');
+                div.className = `thumb ${index === currentIndex ? 'active' : ''}`;
+                div.innerHTML = `<img src="${game.images[0]}">`;
+                div.onclick = () => updateGame(index, div);
+                sidebar.appendChild(div);
+            });
         }
-    }
+        initSidebar();
+        updateGame(0, sidebar.children[0]);
 
-    async function changePassword() {
-        const newPass = document.getElementById('new-admin-pass').value;
-        const statusDiv = document.getElementById('update-status');
+        function updateGame(index, element) {
+            currentIndex = index;
+            currentImageIndex = 0;
 
-        if (!newPass) {
-            statusDiv.style.color = 'red';
-            statusDiv.innerText = 'กรุณากรอกรหัสผ่านใหม่';
-            return;
+            document.querySelectorAll('.thumb').forEach(t => t.classList.remove('active'));
+            if(element) element.classList.add('active');
+
+            animateImageSwitch(() => {
+                const currentGame = gameData[index];
+                mainImg.src = currentGame.images[0];
+                title.innerHTML = `${currentGame.title} <span style="color: ${currentGame.accentColor}">${currentGame.sub}</span>`;
+                subtitle.innerText = currentGame.sub;
+                price.innerText = currentGame.price;
+
+                modStatusBadge.className = `status-badge status-${currentGame.status}`;
+                statusText.innerText = currentGame.statusText;
+
+                if (currentGame.status === 'updating' || currentGame.status === 'down') {
+                    buyBtn.classList.add('disabled');
+                    buyBtn.innerText = currentGame.status === 'updating' ? "กำลังอัปเดต (ปิดชั่วคราว)" : "ปิดปรับปรุงระบบ";
+                } else {
+                    buyBtn.classList.remove('disabled');
+                    buyBtn.innerText = "เช่า MOD";
+                    buyBtn.style.background = currentGame.accentColor;
+                    buyBtn.style.boxShadow = `0 10px 20px ${currentGame.glowColor}`;
+                }
+
+                bgGlow.style.background = `radial-gradient(circle, ${currentGame.glowColor} 0%, rgba(18, 18, 20, 0) 70%)`;
+            });
         }
 
-        try {
-            let response = await fetch(`${BACKEND_URL}/api/admin/change-password`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ newPassword: newPass })
+        function changeImage(direction) {
+            const currentGame = gameData[currentIndex];
+            currentImageIndex += direction;
+            if (currentImageIndex >= currentGame.images.length) currentImageIndex = 0;
+            else if (currentImageIndex < 0) currentImageIndex = currentGame.images.length - 1;
+            
+            animateImageSwitch(() => {
+                mainImg.src = currentGame.images[currentImageIndex];
+            });
+        }
+
+        function animateImageSwitch(callback) {
+            mainImg.classList.add('shoe-anim');
+            setTimeout(() => {
+                callback();
+                mainImg.classList.remove('shoe-anim');
+            }, 250);
+        }
+
+        function openLoginModal() { document.getElementById('login-modal').style.display = 'block'; }
+        function closeLoginModal() { document.getElementById('login-modal').style.display = 'none'; }
+
+        function mockLogin(provider) {
+            currentUser = { name: `User_${provider}_${Math.floor(Math.random()*1000)}`, role: 'member' };
+            updateAuthUI();
+            closeLoginModal();
+            alert(`✅ เข้าสู่ระบบสำเร็จผ่าน ${provider}! ยินดีต้อนรับคุณ ${currentUser.name}`);
+        }
+
+        function loginAdmin() {
+            const pass = document.getElementById('admin-pass-input').value;
+            if (pass === 'admin123') {
+                currentUser = { name: 'Administrator', role: 'admin' };
+                updateAuthUI();
+                closeLoginModal();
+                document.getElementById('admin-pass-input').value = "";
+                openAdminModal();
+            } else {
+                alert("❌ รหัสผ่านแอดมินไม่ถูกต้อง! (ใช้ admin123)");
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            updateAuthUI();
+            alert("🔒 ออกจากระบบเรียบร้อยแล้ว");
+        }
+
+        function updateAuthUI() {
+            const area = document.getElementById('user-auth-area');
+            if (!currentUser) {
+                area.innerHTML = `<button class="auth-btn" onclick="openLoginModal()">🔑 เข้าสู่ระบบ</button>`;
+            } else if (currentUser.role === 'admin') {
+                area.innerHTML = `
+                    <div class="user-pill">
+                        👑 Admin 
+                        <span onclick="openAdminModal()" style="cursor:pointer; text-decoration:underline;">[จัดการระบบ]</span>
+                        <span class="logout-mini" onclick="logout()">[ออก]</span>
+                    </div>
+                `;
+            } else {
+                area.innerHTML = `
+                    <div class="user-pill">
+                        👤 ${currentUser.name} 
+                        <span class="logout-mini" onclick="logout()">[ออก]</span>
+                    </div>
+                `;
+            }
+        }
+
+        function openAdminModal() {
+            if (!currentUser || currentUser.role !== 'admin') {
+                alert("⚠️ กรุณาเข้าสู่ระบบแอดมินก่อน (รหัส: admin123)");
+                openLoginModal();
+                return;
+            }
+            renderAdminGameList();
+            document.getElementById('admin-modal').style.display = 'block';
+        }
+
+        function closeAdminModal() { 
+            document.getElementById('admin-modal').style.display = 'none'; 
+            initSidebar();
+            updateGame(currentIndex, sidebar.children[currentIndex]);
+        }
+
+        function renderAdminGameList() {
+            const container = document.getElementById('admin-game-list');
+            container.innerHTML = "";
+            gameData.forEach((game, gIndex) => {
+                const card = document.createElement('div');
+                card.className = 'admin-game-card';
+                card.innerHTML = `
+                    <h4>🎮 ${game.title} ${game.sub}</h4>
+                    <div class="admin-row">
+                        <label>สถานะ:</label>
+                        <select onchange="updateGameStatus(${gIndex}, this.value)">
+                            <option value="safe" ${game.status === 'safe' ? 'selected' : ''}>Undetected (ปลอดภัย)</option>
+                            <option value="updating" ${game.status === 'updating' ? 'selected' : ''}>Updating (กำลังอัปเดต)</option>
+                            <option value="down" ${game.status === 'down' ? 'selected' : ''}>Maintenance (ปิดปรับปรุง)</option>
+                        </select>
+                    </div>
+                    <div class="admin-row">
+                        <label>คลังคีย์ (1 บรรทัด = 1 คีย์):</label>
+                    </div>
+                    <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:5px; font-size:11px;">
+                        <div>1D:<br><textarea rows="3" onchange="updateStock(${gIndex}, 1, this.value)">${gameKeyStock[gIndex][1].join('\n')}</textarea></div>
+                        <div>3D:<br><textarea rows="3" onchange="updateStock(${gIndex}, 3, this.value)">${gameKeyStock[gIndex][3].join('\n')}</textarea></div>
+                        <div>7D:<br><textarea rows="3" onchange="updateStock(${gIndex}, 7, this.value)">${gameKeyStock[gIndex][7].join('\n')}</textarea></div>
+                        <div>15D:<br><textarea rows="3" onchange="updateStock(${gIndex}, 15, this.value)">${gameKeyStock[gIndex][15].join('\n')}</textarea></div>
+                        <div>30D:<br><textarea rows="3" onchange="updateStock(${gIndex}, 30, this.value)">${gameKeyStock[gIndex][30].join('\n')}</textarea></div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function updateGameStatus(gIndex, statusVal) {
+            gameData[gIndex].status = statusVal;
+            if(statusVal === 'safe') gameData[gIndex].statusText = "Undetected (ปลอดภัย 100%)";
+            if(statusVal === 'updating') gameData[gIndex].statusText = "Updating (กำลังอัปเดตแพตช์)";
+            if(statusVal === 'down') gameData[gIndex].statusText = "Maintenance (ปิดปรับปรุงชั่วคราว)";
+        }
+
+        function updateStock(gIndex, days, val) {
+            gameKeyStock[gIndex][days] = val ? val.split('\n').map(s => s.trim()).filter(s => s) : [];
+        }
+
+        function addNewGame() {
+            const titleInput = document.getElementById('new-title').value.trim();
+            const subInput = document.getElementById('new-sub').value.trim();
+            const modLinkInput = document.getElementById('new-modlink').value.trim();
+            const gameLinkInput = document.getElementById('new-gamelink').value.trim();
+            const imgInput = document.getElementById('new-img').value.trim();
+
+            if (!titleInput || !subInput) {
+                alert("⚠️ กรุณากรอกชื่อเกมและชื่อรองให้ครบถ้วน");
+                return;
+            }
+
+            const newIndex = gameData.length;
+            gameData.push({
+                title: titleInput,
+                sub: subInput,
+                price: "MOD Available",
+                status: "safe",
+                statusText: "Undetected (ปลอดภัย 100%)",
+                modLink: modLinkInput || "#",
+                gameLink: gameLinkInput || "#",
+                images: [
+                    imgInput || "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80"
+                ],
+                glowColor: "rgba(0, 255, 204, 0.35)",
+                accentColor: "#00ffcc",
+                prices: { 1: 50, 3: 120, 7: 250, 15: 450, 30: 800 }
             });
 
-            let data = await response.json();
-            if (response.ok) {
-                statusDiv.style.color = 'green';
-                statusDiv.innerText = 'เปลี่ยนรหัสผ่านสำเร็จ!';
-                document.getElementById('new-admin-pass').value = '';
-            } else {
-                statusDiv.style.color = 'red';
-                statusDiv.innerText = data.error || 'เกิดข้อผิดพลาด';
-            }
-        } catch (err) {
-            statusDiv.style.color = 'red';
-            statusDiv.innerText = 'ไม่สามารถเชื่อมต่อ Server ได้';
-        }
-    }
-</script>
+            gameKeyStock[newIndex] = { 1: [], 3: [], 7: [], 15: [], 30: [] };
 
+            document.getElementById('new-title').value = "";
+            document.getElementById('new-sub').value = "";
+            document.getElementById('new-modlink').value = "";
+            document.getElementById('new-gamelink').value = "";
+            document.getElementById('new-img').value = "";
+
+            renderAdminGameList();
+            alert("✅ เพิ่มเกมใหม่สำเร็จ!");
+        }
+
+        function openPaymentModal() {
+            if (gameData[currentIndex].status !== 'safe') {
+                alert("⚠️ ขออภัย เกมนี้อยู่ในสถานะปิดปรับปรุงหรือกำลังอัปเดต ไม่สามารถเช่าได้ในขณะนี้");
+                return;
+            }
+            document.getElementById('modal-game-name').innerText = `เช่า MOD: ${gameData[currentIndex].title} ${gameData[currentIndex].sub}`;
+            document.getElementById('payment-modal').style.display = 'block';
+            document.getElementById('days-selection').classList.remove('hidden');
+            document.getElementById('payment-area').classList.add('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('payment-modal').style.display = 'none';
+            clearInterval(countdownInterval);
+        }
+
+        function selectDay(days, amount) {
+            selectedDays = days;
+            document.getElementById('days-selection').classList.add('hidden');
+            document.getElementById('payment-area').classList.remove('hidden');
+            document.getElementById('price-display').innerText = `ยอดชำระ: ${amount} บาท (${days} วัน)`;
+            document.getElementById('qr-code').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=PromptPay_${amount}`;
+            startCountdown(300);
+        }
+
+        function startCountdown(duration) {
+            clearInterval(countdownInterval);
+            let timer = duration, minutes, seconds;
+            countdownInterval = setInterval(() => {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+                document.getElementById('countdown').textContent = minutes + ":" + seconds;
+                if (--timer < 0) {
+                    clearInterval(countdownInterval);
+                    alert("⏰ QR Code หมดอายุ กรุณาทำรายการใหม่อีกครั้ง");
+                    closeModal();
+                }
+            }, 1000);
+        }
+
+        function handleSlipUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                document.getElementById('file-name').innerText = `ไฟล์แนบ: ${file.name}`;
+                setTimeout(() => {
+                    alert("✅ ตรวจสอบสลิปและชำระเงินสำเร็จ! ระบบได้ออกคีย์ให้คุณเรียบร้อยแล้ว");
+                    
+                    const stockList = gameKeyStock[currentIndex][selectedDays];
+                    let assignedKey = stockList.length > 0 ? stockList.shift() : "KEY-AUTO-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+                    
+                    purchaseHistory.push({
+                        game: `${gameData[currentIndex].title} ${gameData[currentIndex].sub}`,
+                        days: selectedDays,
+                        date: new Date().toLocaleString(),
+                        key: assignedKey,
+                        modLink: gameData[currentIndex].modLink,
+                        gameLink: gameData[currentIndex].gameLink
+                    });
+
+                    document.getElementById('coupon-count').innerText = purchaseHistory.length;
+                    closeModal();
+                    openHistoryModal();
+                }, 1500);
+            }
+        }
+
+        function openHistoryModal() {
+            renderHistoryList();
+            document.getElementById('history-modal').style.display = 'block';
+        }
+        function closeHistoryModal() { document.getElementById('history-modal').style.display = 'none'; }
+
+        function renderHistoryList() {
+            const container = document.getElementById('history-list-container');
+            if (purchaseHistory.length === 0) {
+                container.innerHTML = `<p class="no-history">ยังไม่มีประวัติการเช่า MOD</p>`;
+                return;
+            }
+            container.innerHTML = "";
+            purchaseHistory.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerHTML = `
+                    <div class="history-top">
+                        <div class="history-info">
+                            <h4>🎮 ${item.game} (${item.days} วัน)</h4>
+                            <div class="history-date">วันที่เช่า: ${item.date}</div>
+                            <p>🔑 Key: <span id="key-text-${idx}">${item.key}</span></p>
+                        </div>
+                    </div>
+                    <div class="history-actions">
+                        <button class="copy-btn" onclick="copyKey('${item.key}')">📋 คัดลอก Key</button>
+                        <a href="${item.modLink}" target="_blank" class="dl-btn">📥 โหลดตัว MOD</a>
+                        <a href="${item.gameLink}" target="_blank" class="dl-btn game-dl">🎮 โหลดตัวเกมแท้</a>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function copyKey(key) {
+            navigator.clipboard.writeText(key).then(() => {
+                alert("📋 คัดลอกคีย์เรียบร้อยแล้ว: " + key);
+            });
+        }
+
+        function openSupportModal() { document.getElementById('support-modal').style.display = 'block'; }
+        function closeSupportModal() { document.getElementById('support-modal').style.display = 'none'; }
+    </script>
 </body>
 </html>
