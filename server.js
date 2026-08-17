@@ -1,149 +1,133 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-require('dotenv').config();
+const bcrypt = require('bcryptjs');
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-// เชื่อมต่อ MongoDB Atlas
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("Connected to MongoDB"))
-  .catch(err => console.error(err));
+// เชื่อมต่อ MongoDB (ใช้ Connection String ของคุณ)
+const MONGO_URI = process.env.MONGO_URI || "ใส่_MongoDB_Connection_String_ของคุณตรงนี้";
+mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log("MongoDB Connected Successfully"))
+    .catch(err => console.log("MongoDB Connection Error: ", err));
 
-// 1. Schema สำหรับข้อมูลลูกค้า (User / สมัครใช้งาน)
-const userSchema = new mongoose.Schema({
-    email: { type: String, required: true, unique: true },
+// --- Schemas & Models ---
+const UserSchema = new mongoose.Schema({
+    username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    createdAt: { type: Date, default: Date.now }
+    role: { type: String, default: 'member' }, // 'admin' หรือ 'member'
+    balance: { type: Number, default: 0 }
 });
-const User = mongoose.model('users', userSchema);
+const User = mongoose.model('User', UserSchema);
 
-// 2. Schema สำหรับ Admin และสถานะร้านค้า (เปิด/ปิดซื้อขาย)
-const adminSchema = new mongoose.Schema({
-    password: { type: String, default: 'admin123' },
-    lastLogin: { type: Date, default: null },
-    isStoreOpen: { type: Boolean, default: true } // สถานะเปิด-ปิดร้าน
+const GameSchema = new mongoose.Schema({
+    title: { type: String, required: true },
+    sub: { type: String },
+    price: { type: String, default: 'MOD Available' },
+    status: { type: String, default: 'safe' }, // safe, updating, down
+    statusText: { type: String, default: 'Undetected (ปลอดภัย 100%)' },
+    modLink: { type: String, default: '#' },
+    gameLink: { type: String, default: '#' },
+    images: [String],
+    glowColor: { type: String, default: 'rgba(0, 255, 204, 0.35)' },
+    accentColor: { type: String, default: '#00ffcc' }
 });
-const Admin = mongoose.model('admins', adminSchema);
+const Game = mongoose.model('Game', GameSchema);
 
-// 3. Schema สำหรับ Key สินค้า
-const keySchema = new mongoose.Schema({
-    productName: String,
-    keyCode: String,
-    isSold: { type: Boolean, default: false }
+const KeySchema = new mongoose.Schema({
+    gameId: { type: String, required: true },
+    days: { type: Number, required: true },
+    keyCode: { type: String, required: true, unique: true },
+    isUsed: { type: Boolean, default: false }
 });
-const KeyItem = mongoose.model('keys', keySchema);
+const KeyStore = mongoose.model('KeyStore', KeySchema);
 
-// --- API ฝั่งลูกค้า ---
-// สมัครสมาชิก
-app.post('/api/register', async (req, res) => {
+
+// --- API Routes ---
+
+// 1. สมัครสมาชิก (Register)
+app.post('/api/auth/register', async (req, res) => {
     try {
-        const { email, password } = req.body;
-        const existingUser = await User.findOne({ email });
-        if (existingUser) return res.status(400).json({ error: 'อีเมลนี้ถูกใช้งานแล้ว' });
+        const { username, password } = req.body;
+        const existingUser = await User.findOne({ username });
+        if (existingUser) return res.status(400).json({ error: "ชื่อผู้ใช้นี้ถูกใช้งานแล้ว" });
 
-        const newUser = new User({ email, password });
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = new User({ username, password: hashedPassword, role: 'member' });
         await newUser.save();
-        res.status(201).json({ success: true, message: 'สมัครสมาชิกสำเร็จ' });
+        res.json({ message: "สมัครสมาชิกสำเร็จ" });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// ล็อกอินลูกค้า
-app.post('/api/login', async (req, res) => {
+// 2. เข้าสู่ระบบ (Login - รองรับทั้ง Admin และ User)
+app.post('/api/auth/login', async (req, res) => {
     try {
-        const { email, password } = req.body;
-        const user = await User.findOne({ email, password });
-        if (!user) return res.status(401).json({ error: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' });
-        res.json({ success: true, message: 'เข้าสู่ระบบสำเร็จ' });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
+        const { username, password } = req.body;
+        const user = await User.findOne({ username });
+        if (!user) return res.status(400).json({ error: "ไม่พบชื่อผู้ใช้นี้ในระบบ" });
 
-// ดึงสถานะร้านค้าสำหรับลูกค้า
-app.post('/api/store-status', async (req, res) => {
-    let admin = await Admin.findOne();
-    const isOpen = admin ? admin.isStoreOpen : true;
-    res.json({ isOpen });
-});
-
-// --- API ฝั่งแอดมิน ---
-// ล็อกอินแอดมิน (ใช้ช่องทางเดียวกัน แต่เช็ครหัสแอดมิน)
-app.post('/api/admin/login', async (req, res) => {
-    try {
-        const { password } = req.body;
-        let admin = await Admin.findOne();
-        if (!admin) {
-            admin = new Admin({ password: 'admin123' });
-            await admin.save();
-        }
-
-        if (admin.password === password) {
-            const previousLogin = admin.lastLogin;
-            admin.lastLogin = new Date();
-            await admin.save();
-            res.json({ success: true, lastLogin: previousLogin, isStoreOpen: admin.isStoreOpen });
+        // กรณีแอดมินตั้งรหัสผ่านตรงๆ หรือเช็คผ่าน bcrypt
+        let isMatch = false;
+        if (user.role === 'admin') {
+            isMatch = (password === user.password) || (await bcrypt.compare(password, user.password));
         } else {
-            res.status(401).json({ error: 'รหัสผ่านแอดมินไม่ถูกต้อง' });
+            isMatch = await bcrypt.compare(password, user.password);
         }
+
+        if (!isMatch) return res.status(400).json({ error: "รหัสผ่านไม่ถูกต้อง" });
+
+        res.json({ message: "เข้าสู่ระบบสำเร็จ", user: { username: user.username, role: user.role, balance: user.balance } });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// เปลี่ยนรหัสผ่านแอดมิน
-app.post('/api/admin/change-password', async (req, res) => {
+// 3. ดึงรายการเกมทั้งหมด (หน้าร้านใช้งาน)
+app.api = app.get('/api/games', async (req, res) => {
     try {
-        const { newPassword } = req.body;
-        let admin = await Admin.findOne();
-        if (!admin) admin = new Admin();
-        admin.password = newPassword;
-        await admin.save();
-        res.json({ success: true, message: 'เปลี่ยนรหัสผ่านสำเร็จ' });
+        const games = await Game.find();
+        res.json(games);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// เปิด-ปิดสถานะร้านค้า
-app.post('/api/admin/toggle-store', async (req, res) => {
+// 4. แอดมิน: เพิ่มเกมใหม่
+app.post('/api/admin/games', async (req, res) => {
     try {
-        const { isOpen } = req.body;
-        let admin = await Admin.findOne();
-        if (!admin) admin = new Admin();
-        admin.isStoreOpen = isOpen;
-        await admin.save();
-        res.json({ success: true, isStoreOpen: admin.isStoreOpen });
+        const newGame = new Game(req.body);
+        await newGame.save();
+        res.json({ message: "เพิ่มเกมสำเร็จ", game: newGame });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// เพิ่ม Key สินค้า
-app.post('/api/admin/add-key', async (req, res) => {
+// 5. แอดมิน: ลบเกม
+app.delete('/api/admin/games/:id', async (req, res) => {
     try {
-        const { productName, keyCode } = req.body;
-        const newKey = new KeyItem({ productName, keyCode });
-        await newKey.save();
-        res.json({ success: true, message: 'เพิ่ม Key สำเร็จ' });
+        await Game.findByIdAndDelete(req.params.id);
+        res.json({ message: "ลบเกมสำเร็จ" });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// ดูรายการ Key ทั้งหมด
-app.get('/api/admin/keys', async (req, res) => {
+// 6. แอดมิน: จัดการเปลี่ยนรหัสผ่าน User
+app.put('/api/admin/user/password', async (req, res) => {
     try {
-        const keys = await KeyItem.find();
-        res.json(keys);
+        const { username, newPassword } = req.body;
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await User.findOneAndUpdate({ username }, { password: hashedPassword });
+        res.json({ message: "เปลี่ยนรหัสผ่านสำเร็จ" });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
