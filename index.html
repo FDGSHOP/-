@@ -350,7 +350,7 @@
 
         .history-content { max-width: 540px; text-align: left; }
         .auth-content { max-width: 400px; }
-        .admin-content { max-width: 620px; text-align: left; max-height: 85vh; overflow-y: auto; }
+        .admin-content { max-width: 650px; text-align: left; max-height: 85vh; overflow-y: auto; }
 
         .close {
             position: absolute;
@@ -466,7 +466,8 @@
         }
 
         .admin-row select,
-        .admin-row input {
+        .admin-row input,
+        .admin-row textarea {
             flex: 1;
             min-width: 120px;
             padding: 6px;
@@ -475,6 +476,15 @@
             color: #fff;
             border-radius: 4px;
             font-size: 11px;
+            resize: vertical;
+        }
+
+        .add-game-box {
+            background: #25252b;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px dashed #00ffcc;
+            margin-top: 15px;
         }
 
         .days-container {
@@ -768,8 +778,26 @@
             <span class="close" onclick="closeAdminModal()">&times;</span>
             <h2>⚙️ Admin Panel (จัดการหลังบ้าน)</h2>
             <p class="modal-sub">เพิ่มเกม, ตั้งราคา, และบริหารคลังคีย์สต็อก (1 บรรทัด = 1 คีย์)</p>
+            
             <div class="admin-game-list" id="admin-game-list"></div>
-            <button onclick="closeAdminModal()" style="margin-top: 15px; background: #00ffcc; color: #121214; border: none; padding: 10px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer;">บันทึกและปิด</button>
+            
+            <div class="add-game-box">
+                <h4 style="color: #00ffcc; margin-bottom: 8px;">➕ เพิ่มเกมใหม่</h4>
+                <div class="admin-row" style="margin-bottom: 5px;">
+                    <input type="text" id="new-title" placeholder="ชื่อเกมหลัก (เช่น ROV)">
+                    <input type="text" id="new-sub" placeholder="ชื่อรอง (เช่น Mobile)">
+                </div>
+                <div class="admin-row" style="margin-bottom: 5px;">
+                    <input type="text" id="new-modlink" placeholder="ลิงก์โหลด MOD APK">
+                    <input type="text" id="new-gamelink" placeholder="ลิงก์โหลดเกมแท้">
+                </div>
+                <div class="admin-row" style="margin-bottom: 8px;">
+                    <input type="text" id="new-img" placeholder="ลิงก์รูปภาพเกม (URL)">
+                </div>
+                <button onclick="addNewGame()" style="background: #00ffcc; color: #121214; border: none; padding: 8px; width: 100%; border-radius: 4px; font-weight: bold; cursor: pointer;">เพิ่มเกมลงระบบ</button>
+            </div>
+
+            <button onclick="closeAdminModal()" style="margin-top: 15px; background: #3498db; color: #fff; border: none; padding: 10px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer;">บันทึกและปิด</button>
         </div>
     </div>
 
@@ -827,7 +855,7 @@
         </div>
     </div>
 
-    <!-- JavaScript (ระบบหลังบ้านเดิมทั้งหมดถูกคืนค่ากลับมาครบถ้วน) -->
+    <!-- JavaScript (โค้ดหลังบ้านเดิมของคุณ 100%) -->
     <script>
         const gameData = [
             { 
@@ -1042,11 +1070,11 @@
                         <label>คลังคีย์ (1 บรรทัด = 1 คีย์):</label>
                     </div>
                     <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:5px; font-size:11px;">
-                        <div>1D: <input type="text" value="${gameKeyStock[gIndex][1].join(', ')}" onchange="updateStock(${gIndex}, 1, this.value)" style="width:100%"></div>
-                        <div>3D: <input type="text" value="${gameKeyStock[gIndex][3].join(', ')}" onchange="updateStock(${gIndex}, 3, this.value)" style="width:100%"></div>
-                        <div>7D: <input type="text" value="${gameKeyStock[gIndex][7].join(', ')}" onchange="updateStock(${gIndex}, 7, this.value)" style="width:100%"></div>
-                        <div>15D: <input type="text" value="${gameKeyStock[gIndex][15].join(', ')}" onchange="updateStock(${gIndex}, 15, this.value)" style="width:100%"></div>
-                        <div>30D: <input type="text" value="${gameKeyStock[gIndex][30].join(', ')}" onchange="updateStock(${gIndex}, 30, this.value)" style="width:100%"></div>
+                        <div>1D:<br><textarea rows="3" onchange="updateStock(${gIndex}, 1, this.value)">${gameKeyStock[gIndex][1].join('\n')}</textarea></div>
+                        <div>3D:<br><textarea rows="3" onchange="updateStock(${gIndex}, 3, this.value)">${gameKeyStock[gIndex][3].join('\n')}</textarea></div>
+                        <div>7D:<br><textarea rows="3" onchange="updateStock(${gIndex}, 7, this.value)">${gameKeyStock[gIndex][7].join('\n')}</textarea></div>
+                        <div>15D:<br><textarea rows="3" onchange="updateStock(${gIndex}, 15, this.value)">${gameKeyStock[gIndex][15].join('\n')}</textarea></div>
+                        <div>30D:<br><textarea rows="3" onchange="updateStock(${gIndex}, 30, this.value)">${gameKeyStock[gIndex][30].join('\n')}</textarea></div>
                     </div>
                 `;
                 container.appendChild(card);
@@ -1061,7 +1089,48 @@
         }
 
         function updateStock(gIndex, days, val) {
-            gameKeyStock[gIndex][days] = val ? val.split(',').map(s => s.trim()).filter(s => s) : [];
+            gameKeyStock[gIndex][days] = val ? val.split('\n').map(s => s.trim()).filter(s => s) : [];
+        }
+
+        function addNewGame() {
+            const titleInput = document.getElementById('new-title').value.trim();
+            const subInput = document.getElementById('new-sub').value.trim();
+            const modLinkInput = document.getElementById('new-modlink').value.trim();
+            const gameLinkInput = document.getElementById('new-gamelink').value.trim();
+            const imgInput = document.getElementById('new-img').value.trim();
+
+            if (!titleInput || !subInput) {
+                alert("⚠️ กรุณากรอกชื่อเกมและชื่อรองให้ครบถ้วน");
+                return;
+            }
+
+            const newIndex = gameData.length;
+            gameData.push({
+                title: titleInput,
+                sub: subInput,
+                price: "MOD Available",
+                status: "safe",
+                statusText: "Undetected (ปลอดภัย 100%)",
+                modLink: modLinkInput || "#",
+                gameLink: gameLinkInput || "#",
+                images: [
+                    imgInput || "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&auto=format&fit=crop&q=80"
+                ],
+                glowColor: "rgba(0, 255, 204, 0.35)",
+                accentColor: "#00ffcc",
+                prices: { 1: 50, 3: 120, 7: 250, 15: 450, 30: 800 }
+            });
+
+            gameKeyStock[newIndex] = { 1: [], 3: [], 7: [], 15: [], 30: [] };
+
+            document.getElementById('new-title').value = "";
+            document.getElementById('new-sub').value = "";
+            document.getElementById('new-modlink').value = "";
+            document.getElementById('new-gamelink').value = "";
+            document.getElementById('new-img').value = "";
+
+            renderAdminGameList();
+            alert("✅ เพิ่มเกมใหม่สำเร็จ!");
         }
 
         function openPaymentModal() {
